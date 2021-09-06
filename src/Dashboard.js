@@ -4,6 +4,7 @@ import {Container, Form} from 'react-bootstrap'
 import SpotifyWebApi from 'spotify-web-api-node'
 import TrackSearchResult from './TrackSearchResult'
 import Player from './Player'
+import axios from 'axios'
 
 const spotifyApi = new SpotifyWebApi({
     clientId: "9db34a83eef04cb7a1231d29994065f9",
@@ -14,11 +15,26 @@ const Dashboard = ({code}) => {
     const [search, setSearch] = useState('')
     const [searchResults, setSearchResults] = useState([])
     const [playingTrack, setPlayingTrack] = useState()
+    const [lyrics, setLyrics] = useState('')
 
     const chooseTrack = (track) => {
         setPlayingTrack(track)
         setSearch('')
+        setLyrics('')
     }
+
+    useEffect(() =>{
+        if (!playingTrack) return
+
+        axios.get("http://localhost:3001/lyrics", {
+            params: {
+                title: playingTrack.title,
+                artist: playingTrack.artist
+            }
+        }).then(res => {
+            setLyrics(res.data.lyrics)
+        })
+    }, [playingTrack])
 
     useEffect(() => {
         if (!accessToken) return
@@ -72,6 +88,12 @@ const Dashboard = ({code}) => {
                     {searchResults.map(track => (
                         <TrackSearchResult track={track} key={track.uri} chooseTrack={chooseTrack}/>
                     ))}
+
+                    {searchResults.length === 0 && (
+                        <div className='text-center text-white' style={{whiteSpace: 'pre'}}>
+                        {lyrics}
+                        </div>
+                    )}
                 </div>
 
                 <div>
