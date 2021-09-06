@@ -8,7 +8,7 @@ const useAuth = (code) => {
     const [expiresIn, setExpiresIn] = useState();
 
     useEffect(() => {
-        console.log(code)
+        //console.log(code)
         axios.post('http://localhost:3001/login', {
           code: code,  
         })
